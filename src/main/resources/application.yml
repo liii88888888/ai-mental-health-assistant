@@ -1,0 +1,70 @@
+# ============================================================
+# 主配置：所有敏感信息都从环境变量读取，仓库里不留明文。
+#
+# 本地怎么跑：
+#   1) 设置环境变量（IDEA：Run → Edit Configurations → Environment variables）
+#        DB_PASSWORD / REDIS_PASSWORD / DEEPSEEK_API_KEY / JWT_SECRET
+#   2) 或者复制 src/main/resources/application-example.yml 为 application-local.yml，
+#      在里面填真实值，然后加 -Dspring.profiles.active=local 启动
+#      （application-local.yml 已经被 .gitignore 排除，不会被提交）
+# ============================================================
+spring:
+  application:
+    name: ai-mental-health-assistant
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:mental_health_assistant}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # DeepSeek（Spring AI）
+  ai:
+    deepseek:
+      # 去 https://platform.deepseek.com 申请；不要写死在代码/配置里
+      #
+      # 这里给了一个占位默认值，是为了让**没有 key 的人也能把项目跑起来**
+      # （注册、登录、日记 CRUD 都不依赖 AI）。
+      # 占位值下 AI 接口会返回 401，前端会提示"AI服务暂时不可用" —— 这是预期行为。
+      api-key: ${DEEPSEEK_API_KEY:sk-please-set-your-own-deepseek-api-key}
+      chat:
+        options:
+          # deepseek-chat = V3 通用对话；deepseek-reasoner = R1 深度推理
+          model: ${DEEPSEEK_MODEL:deepseek-chat}
+          temperature: ${DEEPSEEK_TEMPERATURE:0.7}
+
+  # Redis：token 黑名单（防线）+ 对话上下文缓存（加速器）
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 3s
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: 2s
+
+server:
+  port: ${SERVER_PORT:8080}
+
+# JWT
+# secret 必须换成一段够长、够随机的字符串；换掉之后已签发的 token 会全部失效
+jwt:
+  secret: ${JWT_SECRET:dev-only-please-override-with-a-long-random-secret}
+  expire-time: ${JWT_EXPIRE_MS:86400000}   # 24 小时
+  refresh-token-expire-time: ${JWT_REFRESH_EXPIRE_MS:604800000}
+  header: token
+  token-prefix: ""
+
+# MyBatis-Plus
+mybatis-plus:
+  configuration:
+    # 开发期把 SQL 打到控制台用；部署/演示时建议删掉这一行，日志会很吵
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      # 主键策略：自增（知识库的 UUID 主键在实体上单独指定了 ASSIGN_UUID）
+      id-type: auto

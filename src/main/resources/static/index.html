@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>AI 心理健康助手 · 后端服务</title>
+  <style>
+    body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+           max-width: 780px; margin: 60px auto; padding: 0 20px; line-height: 1.7;
+           color: #24292f; background: #fff; }
+    h1 { font-size: 26px; margin-bottom: 4px; }
+    .sub { color: #6b7280; margin-bottom: 28px; }
+    h2 { font-size: 16px; margin-top: 28px; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    td { padding: 6px 8px; border-bottom: 1px solid #f1f3f5; vertical-align: top; }
+    td:first-child { width: 62px; color: #6b7280; font-family: ui-monospace, Consolas, monospace; }
+    code { background: #f4f5f7; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+    .note { background: #f8fafc; border-left: 3px solid #94a3b8; padding: 10px 14px;
+            font-size: 14px; color: #475569; margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <h1>AI 心理健康助手 · 后端服务</h1>
+  <div class="sub">服务已启动。这是一个纯 API 服务，没有内置前端页面。</div>
+
+  <h2>用户</h2>
+  <table>
+    <tr><td>POST</td><td><code>/api/user/register</code> 注册</td></tr>
+    <tr><td>POST</td><td><code>/api/user/login</code> 登录，返回 JWT</td></tr>
+    <tr><td>POST</td><td><code>/api/user/logout</code> 登出（token 进黑名单）</td></tr>
+  </table>
+
+  <h2>AI 对话</h2>
+  <table>
+    <tr><td>POST</td><td><code>/api/psychological-chat/session/start</code> 新建会话</td></tr>
+    <tr><td>GET</td><td><code>/api/psychological-chat/sessions</code> 会话列表</td></tr>
+    <tr><td>GET</td><td><code>/api/psychological-chat/sessions/{id}/messages</code> 会话消息</td></tr>
+    <tr><td>POST</td><td><code>/api/psychological-chat/stream</code> SSE 流式对话</td></tr>
+  </table>
+
+  <h2>情绪日记</h2>
+  <table>
+    <tr><td>GET</td><td><code>/api/emotion-diary/my</code> 我的日记</td></tr>
+    <tr><td>POST</td><td><code>/api/emotion-diary</code> 新增 / 更新当天日记</td></tr>
+    <tr><td>POST</td><td><code>/api/emotion-diary/{id}/analyze</code> AI 情绪分析</td></tr>
+  </table>
+
+  <div class="note">
+    除登录、注册、登出外，其余接口都需要在请求头带上 <code>token: &lt;JWT&gt;</code>。<br>
+    统一返回 <code>{ code, message, data }</code>；<code>code = "200"</code> 为成功，认证类错误码以 <code>A0</code> 开头。
+  </div>
+</body>
+</html>

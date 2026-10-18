@@ -1,0 +1,55 @@
+# ============================================================
+# 配置样例 —— 复制成 application-local.yml 后填自己的值
+#
+#   cp application-example.yml application-local.yml
+#   启动时加 -Dspring.profiles.active=local
+#
+# application-local.yml 已经被 .gitignore 排除，不会被提交。
+# 如果你更习惯环境变量，看 application.yml —— 那份是环境变量版。
+# ============================================================
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/mental_health_assistant?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: 你的数据库密码
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  ai:
+    deepseek:
+      # 去 https://platform.deepseek.com 申请，形如 sk-xxxxxxxx
+      # 注意：一旦这个 key 进过公开仓库，就必须去平台吊销重发，改代码是补救不了的
+      api-key: sk-在这里填你自己的
+      chat:
+        options:
+          model: deepseek-chat
+          temperature: 0.7
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      # Redis 没设密码就留空 / 删掉这一行
+      password: 你的Redis密码
+      timeout: 3s
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: 2s
+
+server:
+  port: 8080
+
+jwt:
+  # ★ 必须换成一段长随机字符串，例如用 `openssl rand -base64 48` 生成
+  #   不要用任何可猜的短语（拼音短句、生日、项目名之类）
+  secret: 换成你自己的长随机字符串
+  expire-time: 86400000            # 24 小时（毫秒）
+  refresh-token-expire-time: 604800000
+  header: token
+  token-prefix: ""
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
